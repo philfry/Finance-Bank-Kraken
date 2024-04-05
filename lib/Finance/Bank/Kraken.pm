@@ -1,8 +1,6 @@
 package Finance::Bank::Kraken;
 
 #
-# $Id$
-#
 # Kraken API connector
 # author, (c): Philippe Kueck <projects at unixadm dot org>
 #
@@ -14,15 +12,20 @@ use HTTP::Request;
 use LWP::UserAgent;
 use MIME::Base64;
 use Digest::SHA qw(hmac_sha512_base64 sha256);
+use Time::HiRes qw(time);
 
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(Private Public);
-our $VERSION = "0.3";
+our $VERSION = "0.4";
 use constant Private => 1;
 use constant Public => 0;
 
-sub new {bless {'uri' => 'https://api.kraken.com', 'nonce' => time}, $_[0]}
+sub new {
+    bless {
+        'uri' => 'https://api.kraken.com',
+        'nonce' => int(time*1000)
+    }, $_[0]}
 
 sub key {
 	return $_[0]->{'key'} unless $_[1];
@@ -44,10 +47,11 @@ sub call {
 		$req->uri($self->{'uri'} . $uripath);
 		$req->content(sprintf "nonce=%d%s", $self->{'nonce'}, defined $qry?"&$qry":"");
 		$req->header("API-Key" => $self->{'key'});
-		$req->header("API-Sign" => hmac_sha512_base64(
+		my $digest = hmac_sha512_base64(
 			$uripath . sha256($self->{'nonce'} . $req->content),
-			$self->{'secret'})
-		);  
+			$self->{'secret'});
+        while (length($digest) % 4) {$digest .= '='};
+		$req->header("API-Sign" => $digest);
 		$self->{'nonce'}++
 	} else {
 		$req->uri(sprintf "%s%s%s", $self->{'uri'}, $uripath, defined $qry?"?$qry":"")
