@@ -70,7 +70,7 @@ Finance::Bank::Kraken - api.kraken.com connector
 
 =head1 VERSION
 
-0.3
+0.4
 
 =head1 SYNOPSIS
 
