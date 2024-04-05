@@ -1,6 +1,6 @@
 %define rname Finance-Bank-Kraken
 Name: perl-%{rname}
-Version: 0.3
+Version: 0.4
 Release: 1%{?dist}
 Summary: an api.kraken.com connector module
 License: LGPL
@@ -14,7 +14,11 @@ Requires: perl(HTTP::Request)
 Requires: perl(LWP::UserAgent)
 Requires: perl(MIME::Base64)
 Requires: perl(Digest::SHA)
-BuildRequires: perl(ExtUtils::MakeMaker) perl(Module::Build) perl(Test::Simple)
+BuildRequires: make
+BuildRequires: perl-macros
+BuildRequires: perl(ExtUtils::MakeMaker)
+BuildRequires: perl(Module::Build)
+BuildRequires: perl(Test::Simple)
 
 
 %description
@@ -42,12 +46,8 @@ find %{buildroot} -depth -type d -empty -delete
 %{_fixperms} %{buildroot}/*
 
 
-%clean
-[ '%{buildroot}' != '/' ] && rm -rf %{buildroot}
-
-
 %files
-%defattr(-,root,root,-)
+%license COPYING
 %doc README
 %{perl_vendorlib}/Finance/Bank/Kraken.pm
 %{_mandir}/man3/Finance::Bank::Kraken.3pm*
